@@ -26,22 +26,49 @@ use tauri::Manager;
 
 use crate::{
     command::HyprSpaceCommand, 
-    config::load_style::get_style_sheet_path
+    config::load_style::get_style_sheet_path, applications::build_executables_list
 };
 
 
 // ### GLOBALS ###
 
+//TODO: These need to eventually migrate to the Config file
+
+// standard name for the $PATH variable
+static OS_PATH_VAR_NAME: &str = "PATH";
+
 // hyprspace main window label 
 static HYPRSPACE_LABEL: &str = "hyprspace";
+
+// standard ok response over socket
 static HYPRSPACE_OK_SOCK_RESPONSE: &str = "OK";
+
+// standard err response over socket
 static HYPRSPACE_ERR_SOCK_RESPONSE: &str = "ERR";
-// static HYPRSPACE_SHOW_SOCK_COMMAND: &str = "SHOW";
-// static HYPRSPACE_HIDE_SOCK_COMMAND: &str = "HIDE";
+
+// command for showing the window, when communicating over the socket
+static HYPRSPACE_SHOW_SOCK_COMMAND: &str = "SHOW";
+
+// command for hiding the window, when communicating over the socket
+static HYPRSPACE_HIDE_SOCK_COMMAND: &str = "HIDE";
+
+// command to toggle the window state, when communicating over the socket
+static HYPRSPACE_TOGGLE_SOCK_COMMAND: &str = "TOGGLE";
+
+// socket file location
 static HYPRSPACE_SOCK_FILE_PATH: &str = "/tmp/hyprspace.sock";
+
+// directory name for config files in .config
 static HYPRSPACE_CONFIG_DIR_NAME: &str = "hyprspace";
-// static HYPRSPACE_CONFIG_FILE_NAME: &str = "hyprspace.toml";
-static HYPRSPACE_STYLE_FILE_NAME: &str = "style.css";
+
+// standard hyrpspace config file name
+static HYPRSPACE_CONFIG_FILE_NAME: &str = "hyprspace.toml";
+
+// standard hyprspace css style sheet name
+static HYPRSPACE_STYLE_FILE_NAME: &str = "hypr.css";
+
+// standard name for application template file 
+static HYPRSPACE_APPLICATION_TEMPLATE_FILE_NAME: &str = "hypr_fav_app.html";
 
 // ### Setup ###
 fn main() {
@@ -50,6 +77,8 @@ fn main() {
     env_logger::init();
 
     info!("---------- BEGIN LOG ----------");
+
+    build_executables_list();
 
     let available_commands = vec![
         HyprSpaceCommand {

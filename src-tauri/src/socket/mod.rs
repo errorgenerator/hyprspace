@@ -123,31 +123,71 @@ fn listen_to_unix_socket(window: Window, path_to_socket: &Path) {
     remove_socket_file_after_thread_finish(path_to_socket);
 }
 
-fn parse_command(window: &Window, command: String) -> String {
-    let window_label = window.label();
-
-    match command.as_str() {
-        "SHOW" => match window.show() {
-            Err(why) => {
-                error!(
-                    "Unable to set Window visible!\nWindow: {}\nError: {}",
-                    window_label, why
-                );
-                return String::from(HYPRSPACE_ERR_SOCK_RESPONSE);
-            }
-            Ok(()) => return String::from(HYPRSPACE_OK_SOCK_RESPONSE),
+fn show_window(window: &Window) -> String {
+    match window.show() {
+        Err(why) => {
+            error!(
+                "Unable to set Window visible!\nWindow: {}\nError: {}",
+                window.label(),
+                why
+            );
+            return String::from(HYPRSPACE_ERR_SOCK_RESPONSE);
         },
-        "HIDE" => match window.hide() {
-            Err(why) => {
-                error!(
-                    "Unable to set Window hidden!\nWindow: {}\nError: {}",
-                    window_label, why
-                );
-                return String::from(HYPRSPACE_ERR_SOCK_RESPONSE);
+        Ok(()) => {
+            return String::from(HYPRSPACE_OK_SOCK_RESPONSE);
+        }
+    }
+}
+
+fn hide_window(window: &Window) -> String {
+
+    match window.hide() {
+        Err(why) => {
+            error!(
+                "Unable to set Window hidden!\nWindow: {}\nError: {}",
+                window.label(),
+                why
+            );
+            return String::from(HYPRSPACE_ERR_SOCK_RESPONSE);
+        },
+        Ok(()) => {
+            return String::from(HYPRSPACE_OK_SOCK_RESPONSE);
+        }
+    }
+
+}
+
+fn parse_command(window: &Window, command: String) -> String {
+    
+    match command.as_str() {
+        "TOGGLE" => {
+
+            let is_window_visible_atm = match window.is_visible() {
+                Err(why) => {
+                    error!(
+                        "Unable to determine Window visibility state!\nWindow: {}\nError: {}",
+                        window.label(),
+                        why
+                    );
+                    false
+                },
+                Ok(b) => b
+            };
+
+            match is_window_visible_atm {
+                false => {
+                    return show_window(window);
+                },
+                true => {
+                    return hide_window(window);
+                }
             }
-            Ok(()) => {
-                return String::from(HYPRSPACE_OK_SOCK_RESPONSE);
-            }
+        },
+        "SHOW" => {
+            return show_window(window);
+        },
+        "HIDE" => {
+            return hide_window(window);
         },
         _ => {
             warn!("A client sent a request on the socket, but I was unable to understand what he said!\nMessage was: {}", command);

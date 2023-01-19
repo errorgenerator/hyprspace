@@ -37,6 +37,11 @@ defined in the WM - Settings
 ### Config file:
 
 `Hyprspace.toml` -> The main configuration for the Application
+
+### Hints:
+
+It is important, that Hyprspace is started **AFTER** any modifications to the `$PATH` variable, otherwise it will
+not be able to find and watch certain directories.
     
 ### Styling:
 
@@ -60,7 +65,7 @@ log = "0.4.17"
 env_logger ="0.10.0"
 notify = "5.0.0"
 directories = "4.0.1"
-users = "0.11.0"
+sysinfo ="0.27.7"
 ```
 
 ## Debugging and Logs:
