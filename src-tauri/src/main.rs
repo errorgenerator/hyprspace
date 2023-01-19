@@ -26,7 +26,7 @@ use tauri::Manager;
 
 use crate::{
     command::HyprSpaceCommand, 
-    config::load_style::get_style_sheet_path, applications::build_executables_list
+    config::load_style::get_style_sheet_path
 };
 
 
@@ -36,6 +36,9 @@ use crate::{
 
 // standard name for the $PATH variable
 static OS_PATH_VAR_NAME: &str = "PATH";
+
+// standard directory for .desktop files
+static APPLICATION_DESKTOP_FILES_DIRECTORY: &str = "/usr/share/applications/"; 
 
 // hyprspace main window label 
 static HYPRSPACE_LABEL: &str = "hyprspace";
@@ -77,8 +80,6 @@ fn main() {
     env_logger::init();
 
     info!("---------- BEGIN LOG ----------");
-
-    build_executables_list();
 
     let available_commands = vec![
         HyprSpaceCommand {

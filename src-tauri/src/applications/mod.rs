@@ -10,8 +10,15 @@ use std::{
 use application::Application;
 use executable::Executable;
 
-use crate::config::parse_path::parse_path;
 
+/// This struct holds all available Information 
+/// regarding Applications and executables (commands)
+/// available on the system.
+/// 
+/// As building this struct is very resource intensive,
+/// it will only be built once on startup of the application and
+/// will then only refresh its list of applications on a change in the
+/// watched directories ()
 pub struct ApplicationList {
     pub app_count: u32,
     pub exe_count: u32,
@@ -31,7 +38,7 @@ pub struct ApplicationList {
 fn list_dir_contents(path: PathBuf) -> (PathBuf, Vec<String>) {
     let mut contents: Vec<String> = Vec::new();
 
-    let paths = match fs::read_dir(path) {
+    let paths = match fs::read_dir(&path) {
         Err(why) => {
             error!(
                 "Unable to list contents of directory: {}!\nError: {}",
@@ -61,41 +68,7 @@ fn list_dir_contents(path: PathBuf) -> (PathBuf, Vec<String>) {
     (path, contents)
 }
 
-
-/// Builds both the vector for all available executables on $PATH as well as
-/// a HasMap for the executables which contains the name of the executable as
-/// key and an Executable Struct providing a path to the executable.
-/// 
-/// Note that the names vector `Vec<String>` is sorted alphabetically to ease
-/// searching through it later on.
-fn build_executables() -> (Vec<String>, HashMap<String, Executable>) {
-    let mut names_vec: Vec<String> = Vec::new(); 
-    let mut paths_map: HashMap<String, Executable> = HashMap::new();
-
-    let dirs_on_path = match build_executables_dirs_list() {
-        None => {
-            error!("Unable to get a list of the directories on $PATH!\nCheck the logs!");
-            return (names_vec, paths_map);
-        },
-        Some(v) => v
-    };
-
-
-    // sort the vector
-    names_vec.sort_unstable();
-    (names_vec, paths_map)
-}
-
-fn build_executables_dirs_list() -> Option<Vec<PathBuf>> {
-    match parse_path() {
-        Err(why) => {
-            error!("{}", why);
-            None
-        }
-        Ok(v) => Some(convert_to_paths(v)),
-    }
-}
-
+// Converts a String to a PathBuf
 fn convert_to_paths(string_vec: Vec<String>) -> Vec<PathBuf> {
     let mut r_vec: Vec<PathBuf> = Vec::new();
     for s in string_vec {
