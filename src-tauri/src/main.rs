@@ -1,5 +1,6 @@
 // TODO: Clean up Code
 // TODO: Change this config
+// TODO: gotta use a Boyer-Moore algorithm for searching applications.
 #![cfg_attr(
     all(not(debug_assertions), target_os = "linux"),
     windows_subsystem = "windows"
