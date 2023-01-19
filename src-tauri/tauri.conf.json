@@ -1,0 +1,157 @@
+{
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist",
+    "withGlobalTauri": false
+  },
+  "package": {
+    "productName": "hyprspace",
+    "version": "0.0.1"
+  },
+  "tauri": {
+    "cli": {
+      "args": [
+        {
+          "name": "show-window",
+          "short": "s",
+          "description": "Start with window already displayed (default is hidden window), useful for configuration",
+          "takesValue": false
+        }
+      ]
+    },
+    "allowlist": {
+      "all": false,
+      "path": {
+        "all": true
+      },
+      "fs": {
+        "all": false,
+        "copyFile": true,
+        "createDir": false,
+        "exists": true,
+        "readDir": true,
+        "readFile": true,
+        "removeDir": false,
+        "removeFile": false,
+        "renameFile": false,
+        "scope": [
+        ],
+        "writeFile": false
+      },
+      "protocol": {
+        "all": true,
+        "asset": true,
+        "assetScope": [
+          "$AUDIO/**",
+          "$CACHE/**",
+          "$CONFIG/**",
+          "$DATA/**",
+          "$LOCALDATA/**",
+          "$DESKTOP/**",
+          "$DOCUMENT/**",
+          "$DOWNLOAD/**",
+          "$EXE/**",
+          "$FONT/**",
+          "$HOME/**",
+          "$PICTURE/**",
+          "$PUBLIC/**",
+          "$VIDEO/**",
+          "$RESOURCE/**",
+          "$APP/**"
+        ]
+      },
+      "window": {
+        "all": false,
+        "center": true,
+        "close": true,
+        "create": false,
+        "hide": true,
+        "maximize": false,
+        "minimize": false,
+        "print": false,
+        "requestUserAttention": false,
+        "setAlwaysOnTop": false,
+        "setCursorGrab": false,
+        "setCursorIcon": false,
+        "setCursorPosition": false,
+        "setCursorVisible": false,
+        "setDecorations": false,
+        "setFocus": false,
+        "setFullscreen": false,
+        "setIcon": false,
+        "setIgnoreCursorEvents": false,
+        "setMaxSize": false,
+        "setMinSize": false,
+        "setPosition": false,
+        "setResizable": false,
+        "setSize": false,
+        "setSkipTaskbar": false,
+        "setTitle": false,
+        "show": false,
+        "startDragging": false,
+        "unmaximize": false,
+        "unminimize": false
+      },
+      "shell": {
+        "all": false,
+        "open": true,
+        "execute": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "Education",
+      "copyright": "None",
+      "deb": {
+        "depends": []
+      },
+      "externalBin": [],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "identifier": "org.hypr.space",
+      "longDescription": "",
+      "macOS": {
+        "entitlements": null,
+        "exceptionDomain": "",
+        "frameworks": [],
+        "providerShortName": null,
+        "signingIdentity": null
+      },
+      "resources": [],
+      "shortDescription": "",
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      }
+    },
+    "security": {
+      "csp": "default-src 'self' blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self' asset: https://asset.localhost"
+    },
+    "updater": {
+      "active": false
+    },
+    "windows": [
+      {
+        "visible": true,
+        "label": "hyprspace",
+        "center": true,
+        "focus": true,
+        "fullscreen": true,
+        "resizable": false,
+        "alwaysOnTop": true,
+        "transparent": true,
+        "decorations": false,
+        "title": "hyprspace"
+      }
+    ]
+  }
+}
