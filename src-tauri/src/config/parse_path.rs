@@ -1,7 +1,5 @@
 use crate::OS_PATH_VAR_NAME;
 
-
-
 /// This function is used to parse the system path
 /// in order to get access to a list of all available
 /// executables (binaries) on the system.
