@@ -5,6 +5,8 @@ use std::{
     path::PathBuf
 };
 
+use cached::proc_macro::cached;
+
 use crate::APPLICATION_DESKTOP_FILES_DIRECTORY;
 
 use super::list_dir_contents;
@@ -24,7 +26,9 @@ pub struct Application {
 ///
 /// Note that the names vector `Vec<String>` is sorted alphabetically to ease
 /// searching through it later on.
+#[cached(size=1)]
 pub fn build_applications() -> (Vec<String>, HashMap<String, Application>) {
+
     let mut names_vec: Vec<String> = Vec::new();
     let mut paths_map: HashMap<String, Application> = HashMap::new();
 
@@ -87,7 +91,16 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
 
     let reader = BufReader::new(file);
 
+    let mut got_name = false;
+    let mut got_exec = false;
+    let mut got_icon = false;
+
     for line in reader.lines() {
+        
+        if got_name && got_exec && got_icon {
+            break;
+        }
+
         match line {
             Err(why) => {
                 error!(
@@ -103,16 +116,19 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
                     continue;
                 }
 
-                if ls.starts_with("Name=") {
+                if ls.starts_with("Name=") && !got_name {
                     app_name.push_str(ls.clone().replace("Name=", "").as_str());
+                    got_name = true;
                 }
 
-                if ls.starts_with("Exec=") {
+                if ls.starts_with("Exec=") && !got_exec {
                     app_exe.push_str(ls.clone().replace("Exec=", "").as_str());
+                    got_exec = true;
                 }
 
-                if ls.starts_with("Icon=") {
+                if ls.starts_with("Icon=") && !got_icon{
                     app_icon.push_str(ls.clone().replace("Icon=", "").as_str());
+                    got_icon = true;
                 }
             }
         }

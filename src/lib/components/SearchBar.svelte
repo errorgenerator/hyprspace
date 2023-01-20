@@ -6,7 +6,8 @@
 
     function emitSearchInputChangeEvent(currentInputString) {
         invoke('get_search_results', {
-            searchTerm: searchInput
+            searchTerm: searchInput,
+            reloadCache: false
         }).then(
             (res) => { searchResult = res; }
         );

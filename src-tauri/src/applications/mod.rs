@@ -8,6 +8,8 @@ use std::{
     path::PathBuf, fs
 };
 
+use cached::proc_macro::cached;
+
 use application::Application;
 use executable::Executable;
 
@@ -22,6 +24,7 @@ use self::{application::build_applications, executable::build_executables};
 /// it will only be built once on startup of the application and
 /// will then only refresh its list of applications on a change in the
 /// watched directories ()
+#[derive(Clone, Debug)]
 pub struct ApplicationList {
     pub app_count: u32,
     pub exe_count: u32,
@@ -31,7 +34,25 @@ pub struct ApplicationList {
     pub executable_vec: HashMap<String, Executable>,
 }
 
-pub fn init_apps_list() -> ApplicationList {
+pub fn load_apps_list(reload_cache: bool) -> ApplicationList {
+
+    if reload_cache {
+        {
+            // Clean the cache
+            use cached::Cached;
+            let mut cache = INIT_APPS_LIST.lock().unwrap();
+            cache.cache_clear();
+            println!("Cleaned the cache!");
+
+        }
+    }
+
+    init_apps_list()
+}
+
+// cached idefinetely
+#[cached(size=1)]
+fn init_apps_list() -> ApplicationList {
     let (app_names, apps) = build_applications();
     let (cmd_names, cmds) = build_executables();
     let app_count = app_names.len() as u32;

@@ -25,6 +25,7 @@ directories = "4.0.1"
 sysinfo ="0.27.7"
 freedesktop-icons = "0.2.3"
 linicon-theme = "1.2.0"
+cached = "0.42.0"
 
 [features]
 # by default Tauri runs in production mode

@@ -14,7 +14,6 @@ mod events;
 mod socket;
 mod config;
 mod applications;
-mod filewatch;
 
 use std::process;
 
@@ -27,7 +26,7 @@ use tauri::Manager;
 
 use crate::{
     command::HyprSpaceCommand, 
-    config::load_style::get_style_sheet_path
+    config::load_style::get_style_sheet_path, applications::load_apps_list
 };
 
 
@@ -81,17 +80,18 @@ static HYPRSPACE_STYLE_FILE_NAME: &str = "hypr.css";
 // standard name for application template file 
 static HYPRSPACE_APPLICATION_TEMPLATE_FILE_NAME: &str = "hypr_fav_app.html";
 
+// load up all applications 
 
 
 // ### Setup ###
 fn main() {
 
-    let mut applications = applications::init_apps_list();
-
     // start up logging framework
     env_logger::init();
-
     info!("---------- BEGIN LOG ----------");
+
+    // initialize the application cache
+    load_apps_list(false);
 
     let available_commands = vec![
         HyprSpaceCommand {
@@ -108,8 +108,10 @@ fn main() {
                 Some(w) => w
             };
 
+            // listen on the socket 
             start_listening_thread_on_socket(window, HYPRSPACE_SOCK_FILE_PATH);
 
+            // listen to error events
             app.listen_global("error-message", |event| {
                 react_to_error_message(event);
             });

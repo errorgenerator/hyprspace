@@ -1,5 +1,7 @@
 use std::{collections::HashMap, path::PathBuf};
 
+use cached::proc_macro::cached;
+
 use crate::config::parse_path::parse_path;
 
 use super::{list_dir_contents, convert_to_paths};
@@ -22,6 +24,7 @@ pub struct Executable {
 /// 
 /// Note that the names vector `Vec<String>` is sorted alphabetically to ease
 /// searching through it later on.
+#[cached(size=1)]
 pub fn build_executables() -> (Vec<String>, HashMap<String, Executable>) {
     let mut names_vec: Vec<String> = Vec::new(); 
     let mut paths_map: HashMap<String, Executable> = HashMap::new();
