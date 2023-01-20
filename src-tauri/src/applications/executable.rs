@@ -22,7 +22,7 @@ pub struct Executable {
 /// 
 /// Note that the names vector `Vec<String>` is sorted alphabetically to ease
 /// searching through it later on.
-fn build_executables() -> (Vec<String>, HashMap<String, Executable>) {
+pub fn build_executables() -> (Vec<String>, HashMap<String, Executable>) {
     let mut names_vec: Vec<String> = Vec::new(); 
     let mut paths_map: HashMap<String, Executable> = HashMap::new();
 

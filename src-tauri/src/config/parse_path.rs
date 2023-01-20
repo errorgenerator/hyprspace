@@ -12,7 +12,7 @@ pub fn parse_path() -> Result<Vec<String>, String> {
     };
 
     match path_variable.is_empty() {
-        true => Err(String::from("$PATH could not be determine")),
+        true => Err(String::from("$PATH could not be determined")),
         false => Ok(dissect_path_into_directories(path_variable))
     }
 }

@@ -1,5 +1,6 @@
 pub mod application;
 pub mod executable;
+pub mod icons;
 
 use std::{
     collections::HashMap, 
@@ -9,6 +10,8 @@ use std::{
 
 use application::Application;
 use executable::Executable;
+
+use self::{application::build_applications, executable::build_executables};
 
 
 /// This struct holds all available Information 
@@ -28,7 +31,24 @@ pub struct ApplicationList {
     pub executable_vec: HashMap<String, Executable>,
 }
 
-/// This function simply lists all file in a specific directory passed to it
+pub fn init_apps_list() -> ApplicationList {
+    let (app_names, apps) = build_applications();
+    let (cmd_names, cmds) = build_executables();
+    let app_count = app_names.len() as u32;
+    let exe_count = cmd_names.len() as u32;
+
+    ApplicationList { 
+        app_count: app_count, 
+        exe_count: exe_count, 
+        application_names_vec: app_names, 
+        executable_names_vec: cmd_names, 
+        application_vec: apps, 
+        executable_vec: cmds 
+    }
+
+}
+
+/// This function simply lists all files in a specific directory passed to it
 /// as a PathBuf.
 /// Note that, if a entry is, for whatever reason, unreadable it will simply be
 /// skipped.
@@ -58,7 +78,7 @@ fn list_dir_contents(path: PathBuf) -> (PathBuf, Vec<String>) {
             },
             Ok(e) => {
 
-                let file_name = e.file_name().to_string_lossy().to_string(); // TODO: check if this has an effect
+                let file_name = e.file_name().to_string_lossy().to_string(); // TODO: check if this has any side effects
                 contents.push(file_name);
             }
         }

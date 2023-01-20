@@ -14,6 +14,7 @@ mod events;
 mod socket;
 mod config;
 mod applications;
+mod filewatch;
 
 use std::process;
 
@@ -38,10 +39,17 @@ use crate::{
 static OS_PATH_VAR_NAME: &str = "PATH";
 
 // standard directory for .desktop files
-static APPLICATION_DESKTOP_FILES_DIRECTORY: &str = "/usr/share/applications/"; 
+static APPLICATION_DESKTOP_FILES_DIRECTORY: &str = "/usr/share/applications/";
+
+static APPLICATION_ICONS_SYSTEM_WIDE_DIRECTORY: &str = "/usr/share/icons/";
+
+static APPLICATION_PIXMAPS_DIRECTORY: &str = "/usr/share/pixmaps/";
 
 // hyprspace main window label 
 static HYPRSPACE_LABEL: &str = "hyprspace";
+
+// prefferred terminal emulator
+static HYPRSPACE_PREF_TERM_EMULATOR: &str = "alacritty";
 
 // standard ok response over socket
 static HYPRSPACE_OK_SOCK_RESPONSE: &str = "OK";
@@ -73,8 +81,12 @@ static HYPRSPACE_STYLE_FILE_NAME: &str = "hypr.css";
 // standard name for application template file 
 static HYPRSPACE_APPLICATION_TEMPLATE_FILE_NAME: &str = "hypr_fav_app.html";
 
+
+
 // ### Setup ###
 fn main() {
+
+    let mut applications = applications::init_apps_list();
 
     // start up logging framework
     env_logger::init();
@@ -85,11 +97,7 @@ fn main() {
         HyprSpaceCommand {
             cmd_name: "help".to_string(),
             cmd_function: command::help_cmd,
-        },
-        HyprSpaceCommand {
-            cmd_name: "show-window".to_string(),
-            cmd_function: command::show_window_cmd,
-        },
+        }
     ];
 
     tauri::Builder::default()

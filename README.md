@@ -49,173 +49,26 @@ Styling is done via plain old CSS.
 To get an overview of the html structure simply right click and inspect the window. (like a website, i mean it is simply a webview)
 
 
-### ❓ How do I change the look of the Icons?
+### ❓ How do I change the look of the Application-Icons?
 
-```
-tldr;
-it simply follows the current icon theme. use something like lxappearance to change them.
-```
+Hyprspace simply follows the current icon theme.
 
-This application follows the specification of the Icon-Lookup algorithm from [Freedesktop](https://specifications.freedesktop.org).
+It will try to determine the used icon-theme in the 
+following order:
 
+1. Icon-Theme used by **GTK3**
+2. Icon-Theme used by **GTK2**
+3. Icon-Theme used by **Gsettings**
+4. Icon-Theme used by **KDE**
+5. Icon-Theme used by **ThemeConf**
 
-more specifically [THIS ONE](https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html#icon_lookup)
+It will return name of the first theme it found.
 
-<details>
-<summary>The Lookup Algorithm Specifikation</summary>
+So if you have (for example) Adwaita as your GTK3 Icon-Theme and Breeze as your KDE-Plasma Icon-Theme set, it will use the Adwaite theme, since it first checks the GTK3 theme before KDE.
 
-```
-Icon Lookup
+Note: if no Theme can be determine it will use the `hicolor` theme as fallback!
 
-The icon lookup mechanism has two global settings, the list of base directories and the internal name of the current theme. Given these we need to specify how to look up an icon file from the icon name, the nominal size and the scale.
-
-The lookup is done first in the current theme, and then recursively in each of the current theme's parents, and finally in the default theme called "hicolor" (implementations may add more default themes before "hicolor", but "hicolor" must be last). As soon as there is an icon of any size that matches in a theme, the search is stopped. Even if there may be an icon with a size closer to the correct one in an inherited theme, we don't want to use it. Doing so may generate an inconsistant change in an icon when you change icon sizes (e.g. zoom in).
-
-The lookup inside a theme is done in three phases. First all the directories are scanned for an exact match, e.g. one where the allowed size of the icon files match what was looked up. Then all the directories are scanned for any icon that matches the name. If that fails we finally fall back on unthemed icons. If we fail to find any icon at all it is up to the application to pick a good fallback, as the correct choice depends on the context.
-
-The exact algorithm (in pseudocode) for looking up an icon in a theme (if the implementation supports SVG) is:
-
-FindIcon(icon, size, scale) {
-  filename = FindIconHelper(icon, size, scale, user selected theme);
-  if filename != none
-    return filename
-
-  filename = FindIconHelper(icon, size, scale, "hicolor");
-  if filename != none
-    return filename
-
-  return LookupFallbackIcon (icon)
-}
-FindIconHelper(icon, size, scale, theme) {
-  filename = LookupIcon (icon, size, scale, theme)
-  if filename != none
-    return filename
-
-  if theme has parents
-    parents = theme.parents
-
-  for parent in parents {
-    filename = FindIconHelper (icon, size, scale, parent)
-    if filename != none
-      return filename
-  }
-  return none
-}
-     
-
-With the following helper functions:
-
-LookupIcon (iconname, size, scale, theme) {
-  for each subdir in $(theme subdir list) {
-    for each directory in $(basename list) {
-      for extension in ("png", "svg", "xpm") {
-        if DirectoryMatchesSize(subdir, size, scale) {
-          filename = directory/$(themename)/subdir/iconname.extension
-          if exist filename
-	    return filename
-        }
-      }
-    }
-  }
-  minimal_size = MAXINT
-  for each subdir in $(theme subdir list) {
-    for each directory in $(basename list) {
-      for extension in ("png", "svg", "xpm") {
-        filename = directory/$(themename)/subdir/iconname.extension
-        if exist filename and DirectorySizeDistance(subdir, size, scale) < minimal_size {
-	   closest_filename = filename
-	   minimal_size = DirectorySizeDistance(subdir, size, scale)
-        }
-      }
-    }
-  }
-  if closest_filename set
-     return closest_filename
-  return none
-}
-
-LookupFallbackIcon (iconname) {
-  for each directory in $(basename list) {
-    for extension in ("png", "svg", "xpm") {
-      if exists directory/iconname.extension
-        return directory/iconname.extension
-    }
-  }
-  return none
-}
-
-DirectoryMatchesSize(subdir, iconsize, iconscale) {
-  read Type and size data from subdir
-  if Scale != iconscale
-     return False;
-  if Type is Fixed
-    return Size == iconsize
-  if Type is Scaled
-    return MinSize <= iconsize <= MaxSize
-  if Type is Threshold
-    return Size - Threshold <= iconsize <= Size + Threshold
-}
-
-DirectorySizeDistance(subdir, iconsize, iconscale) {
-  read Type and size data from subdir
-  if Type is Fixed
-    return abs(Size*Scale - iconsize*iconscale)
-  if Type is Scaled
-    if iconsize*iconscale < MinSize*Scale
-        return MinSize*Scale - iconsize*iconscale
-    if iconsize*iconscale > MaxSize*Scale
-        return iconsize*iconscale - MaxSize*Scale
-    return 0
-  if Type is Threshold
-    if iconsize*iconscale < (Size - Threshold)*Scale
-        return MinSize*Scale - iconsize*iconscale
-    if iconsize*iconsize > (Size + Threshold)*Scale
-        return iconsize*iconsize - MaxSize*Scale
-    return 0
-}
-
-In some cases you don't always want to fall back to an icon in an inherited theme. For instance, sometimes you look for a set of icons, prefering any of them before using an icon from an inherited theme. To support such operations implementations can contain a function that finds the first of a list of icon names in the inheritance hierarchy. I.E. It would look something like this:
-
-FindBestIcon(iconList, size, scale) {
-  filename = FindBestIconHelper(iconList, size, scale, user selected theme);
-  if filename != none
-    return filename
-
-  filename = FindBestIconHelper(iconList, size, scale, "hicolor");
-  if filename != none
-    return filename
-
-  for icon in iconList {
-    filename = LookupFallbackIcon (icon)
-    if filename != none
-      return filename
-  }
-  return none;
-}
-FindBestIconHelper(iconList, size, scale, theme) {
-  for icon in iconList {
-    filename = LookupIcon (icon, size, theme)
-    if filename != none
-      return filename
-  }
-
-  if theme has parents
-    parents = theme.parents
-
-  for parent in parents {
-    filename = FindBestIconHelper (iconList, size, scale, parent)
-    if filename != none
-      return filename
-  }
-  return none
-}
-
-This can be very useful for example when handling mimetype icons, where there are more and less "specific" versions of icons.
-
-
-```
-
-</details>
+My Advice: Use something like **[lxappearance](https://github.com/lxde/lxappearance)** to change your icon theme and then the icons will change after a restart of Hyprspace.
 
 ### ❗ Hints:
 
@@ -231,12 +84,14 @@ tauri-build = { version = "1.2", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.2", features = ["cli", "shell-open", "window-center", "window-close", "window-hide"] }
+tauri = { version = "1.2", features = ["cli", "fs-copy-file", "fs-exists", "fs-read-dir", "fs-read-file", "path-all", "protocol-all", "shell-execute", "shell-open", "window-center", "window-close", "window-hide"] }
 log = "0.4.17"
 env_logger ="0.10.0"
 notify = "5.0.0"
 directories = "4.0.1"
 sysinfo ="0.27.7"
+freedesktop-icons = "0.2.3"
+linicon-theme = "1.2.0"
 ```
 
 ## 🧑‍💻 Debugging and Logs:
