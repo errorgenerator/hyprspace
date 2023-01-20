@@ -42,7 +42,6 @@ pub fn load_apps_list(reload_cache: bool) -> ApplicationList {
             use cached::Cached;
             let mut cache = INIT_APPS_LIST.lock().unwrap();
             cache.cache_clear();
-            println!("Cleaned the cache!");
 
         }
     }
@@ -50,7 +49,7 @@ pub fn load_apps_list(reload_cache: bool) -> ApplicationList {
     init_apps_list()
 }
 
-// cached idefinetely
+// cached indefinetely until explicit reload on ESC in frontend
 #[cached(size=1)]
 fn init_apps_list() -> ApplicationList {
     let (app_names, apps) = build_applications();

@@ -5,7 +5,7 @@
 
   /**
    * Here we get the path to the style.css file located in the .config directory
-   * and the we dynamically append it to the DOM
+   * and then we dynamically append it to the DOM
    */
   invoke("get_style_sheet_path").then((path) => {
     let linkElem = document.createElement("link");
@@ -17,7 +17,6 @@
 
   import { emit, listen } from "@tauri-apps/api/event";
   import { appWindow } from "@tauri-apps/api/window";
-    import { onMount } from "svelte";
 
   /**
    * This function is used in the handling of shortcuts.

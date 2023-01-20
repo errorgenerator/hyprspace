@@ -14,6 +14,6 @@ pub async fn get_search_results(search_term: String, reload_cache: bool) -> Stri
     format!("{}<br>{:?}", applications.app_count, applications.application_names_vec)
 }
 
-//fn find_applications_by_search_term(search_term: String, application_list: ApplicationList) -> Vec<Application> {
-//
-//}
+fn find_applications_by_search_term(search_term: String, application_list: ApplicationList) -> Vec<Application> {
+    let application_names = application_list.application_names_vec;
+}
