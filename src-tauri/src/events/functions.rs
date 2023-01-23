@@ -1,30 +1,144 @@
-use cached::proc_macro::cached;
+use std::collections::HashMap;
 
-use crate::applications::{self, ApplicationList, application::Application, executable::Executable};
+use rust_fuzzy_search::fuzzy_search_best_n;
+
+use crate::applications::{self, application::Application, executable::Executable};
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct SearchResult {
+    pub applications: Vec<Application>,
+    pub executables: Vec<Executable>,
+}
 
 #[tauri::command]
-pub async fn get_search_results(search_term: String,limit: u32, reload_cache: bool) -> String {
-    let applications = applications::load_apps_list(reload_cache);
+pub async fn get_search_results(
+    search_term: String,
+    limit: u32,
+    reload_cache: bool,
+) -> SearchResult {
 
-    if search_term.is_empty() {
-        return String::from("");
+    let mut found_apps: Vec<Application> = Vec::new();
+    let mut found_exes: Vec<Executable> = Vec::new();
+
+    if !search_term.is_empty() {
+        let applications = applications::load_apps_list(reload_cache);
+
+        let app_names = applications.application_names_vec.clone();
+        let app_map = applications.application_vec.clone();
+        let search_term_apps = search_term.clone();
+
+        let exe_names = applications.executable_names_vec.clone();
+        let exe_map = applications.executable_vec.clone();
+        let search_term_exes = search_term.clone();
+
+        let join_handle_for_apps = std::thread::spawn(move || {
+            find_applications(search_term_apps, limit, &app_names, app_map)
+        });
+
+        let join_handle_for_exes = std::thread::spawn(move || {
+            find_executables(search_term_exes, limit, &exe_names, exe_map)
+        });
+
+        found_apps = match join_handle_for_apps.join() {
+            Err(why) => {
+                error!(
+                    "Thread for finding app search results panicked!\nError: {:?}",
+                    why
+                );
+                Vec::new()
+            }
+            Ok(v) => v
+        };
+
+        found_exes = match join_handle_for_exes.join() {
+            Err(why) => {
+                error!(
+                    "Thread for finding executables search results panicked!\nError: {:?}",
+                    why
+                );
+                Vec::new()
+            },
+            Ok(v) => v
+        };
+
     }
 
-    // TODO Implement rendering logic
-    format!("{}<br>{:?}", applications.app_count, applications.application_names_vec)
+    SearchResult{ applications: found_apps, executables: found_exes}
 }
 
-// TODO: multi-threaded search for slight performance increase
+fn find_executables (
+    search_term: String,
+    limit: u32,
+    exe_names: &Vec<String>,
+    exe_map: HashMap<String, Executable>
+) -> Vec<Executable> {
 
-fn render_found_applications(limit: u32, app_vec: Vec<Application>) -> String {
-    todo();
+    let mut exe_str_vec: Vec<&str> = Vec::new();
+
+    for name in exe_names {
+        let name_owner = name;
+        exe_str_vec.push(name_owner.as_str());
+    }
+
+    let mut found_exes: Vec<Executable> = Vec::new();
+    let mut best_matches = fuzzy_search_best_n(search_term.as_str(), &exe_str_vec, limit as usize);
+
+    best_matches.sort_unstable_by(|a, b| {
+        match b.1.partial_cmp(&a.1) {
+            None => std::cmp::Ordering::Equal,
+            Some(o) => o
+        }
+    });
+
+    for (name, _score) in best_matches {
+        match exe_map.get(&String::from(name)) {
+            None => {
+                continue;
+            },
+            Some(e) => {
+                found_exes.push(e.clone());
+            }
+        }
+    }
+
+    found_exes
 }
 
-fn render_found_cmds(limit: u32, app_vec: Vec<Executable>) -> String {
-    todo();
-}
+fn find_applications(
+    search_term: String,
+    limit: u32,
+    app_names: &Vec<String>,
+    app_map: HashMap<String, Application>,
+) -> Vec<Application> {
 
-fn find_applications_by_search_term(limit: u32, search_term: String, application_list: ApplicationList) -> Vec<Application> {
-    let application_names = application_list.application_names_vec;
-    todo();
+    let mut app_str_vec: Vec<&str> = Vec::new();
+
+    for name in app_names {
+        let name_owner = name;
+        app_str_vec.push(name_owner.as_str());
+    }
+
+    let mut found_applications: Vec<Application> = Vec::new();
+    let mut best_matches = fuzzy_search_best_n(search_term.as_str(), &app_str_vec, limit as usize);
+
+    // sort the array
+    best_matches.sort_unstable_by(|a, b| {
+        match b.1.partial_cmp(&a.1) {
+            None => std::cmp::Ordering::Equal,
+            Some(o) => o
+        }
+    });
+
+    for (name, _score) in best_matches {
+        match app_map.get(&String::from(name)) {
+            None => {
+                continue;
+            },
+            Some(a) => {
+                found_applications.push(a.clone());
+            }
+        }
+    }
+
+    found_applications
 }

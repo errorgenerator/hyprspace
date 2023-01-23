@@ -15,7 +15,7 @@
     document.head.appendChild(linkElem);
   });
 
-  import { emit, listen } from "@tauri-apps/api/event";
+  import { emit } from "@tauri-apps/api/event";
   import { appWindow } from "@tauri-apps/api/window";
 
   /**
@@ -25,7 +25,7 @@
    */
   function handleKeyDownEvent(event) {
     let code = event.code;
-    
+
     // on ESC -> hide the window
     if (code == "Escape") {
       minimizeWindow();
@@ -53,8 +53,8 @@
         function (p) {
           invoke("get_search_results", {
             searchTerm: "",
-            reloadCache: true
-          })
+            reloadCache: true,
+          });
         },
         function (error) {
           emit("error-message", {

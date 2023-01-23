@@ -55,10 +55,13 @@
           "$EXE/**",
           "$FONT/**",
           "$HOME/**",
+          "$HOME/.icons/**",
           "$PICTURE/**",
           "$PUBLIC/**",
           "$VIDEO/**",
           "$RESOURCE/**",
+          "/usr/share/icons/**",
+          "/usr/share/icons/hicolor/**",
           "$APP/**"
         ]
       },
