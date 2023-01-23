@@ -65,18 +65,18 @@ pub fn load_app_configuration() -> AppConfiguration {
     let config_dir = base_dirs.config_dir();
 
     let file_path = format!("{}/{}/{}", config_dir.display(), HYPRSPACE_CONFIG_DIR_NAME, HYPRSPACE_CONFIG_FILE_NAME);
-    let path_to_config = file_path.clone().as_str();
-    if config_file_exists(path_to_config) {
-
+    if config_file_exists(file_path.clone().as_str()) {
+        return load_config_from_file();
     }
+    create_config_from_defaults()
 }
 
 fn create_config_from_defaults() -> AppConfiguration {
-    
+    AppConfiguration {  }
 }
 
 fn load_config_from_file() -> AppConfiguration {
-
+    AppConfiguration {  }
 }
 
 fn config_file_exists(path_to_config: &str) -> bool {
