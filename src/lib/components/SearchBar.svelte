@@ -7,7 +7,7 @@
         constructor(name, exe, path_to_icon) {
             this.name = name;
             this.exe = exe;
-            this.path_to_icon = convertFileSrc(path_to_icon);
+            this.path_to_icon = findFittingIcon(path_to_icon);
         }
     }
 
@@ -42,6 +42,14 @@
             this.applications = applications_array;
             this.executables = executables_array;
         }
+    }
+
+    function findFittingIcon(iconSrc) {
+        if(iconSrc === undefined || iconSrc === "") {
+            return "/placeholder.svg";
+        }
+
+        return convertFileSrc(iconSrc)
     }
 
     function removeExistingChildrenFromResults(resultsDiv) {
@@ -128,7 +136,7 @@
 
     function buildExecutableButton(executable) {
         let icon = document.createElement("img");
-        icon.src = "";
+        icon.src = "/placeholder.svg";
         icon.alt = "Icon for " + executable.name;
         icon.classList.add("hyprspace-exe-icon");
         icon.id = executable.name + "-icon";

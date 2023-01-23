@@ -3,7 +3,8 @@ use tauri::Event;
 use crate::events::messages::ErrorEvent;
 
 pub mod messages;
-pub mod functions;
+pub mod search;
+pub mod execute;
 
 pub trait HasComponentOfOrigin {
     fn get_component_of_origin(&self) -> String;

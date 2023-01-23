@@ -19,14 +19,14 @@ use std::process;
 
 use events::{
     react_to_error_message, 
-    functions::get_search_results
+    search::get_search_results
 };
 use socket::start_listening_thread_on_socket;
 use tauri::Manager;
 
 use crate::{
     command::HyprSpaceCommand, 
-    config::load_style::get_style_sheet_path, applications::load_apps_list
+    config::load_style::get_style_sheet_path, applications::load_apps_list, events::execute::handle_execution_request
 };
 
 
@@ -80,7 +80,8 @@ static HYPRSPACE_STYLE_FILE_NAME: &str = "hypr.css";
 // standard name for application template file 
 static HYPRSPACE_APPLICATION_TEMPLATE_FILE_NAME: &str = "hypr_fav_app.html";
 
-// load up all applications 
+// the terminal to use for shell executables
+static HYPRSPACE_PREFFERRED_TERMINAL_EMULATOR: &str = "alacritty"; //TODO: change to xterm
 
 
 // ### Setup ###
@@ -131,7 +132,8 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             get_search_results,
-            get_style_sheet_path
+            get_style_sheet_path,
+            handle_execution_request
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
