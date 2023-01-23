@@ -2,6 +2,7 @@ use crate::applications::application::Application;
 
 pub mod load_style;
 pub mod parse_path;
+pub mod defaults;
 
 /// This Struct holds the configuration for the entire application
 /// It is parsed from a file called hyprspace.toml.

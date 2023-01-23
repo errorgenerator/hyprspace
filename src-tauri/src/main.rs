@@ -81,7 +81,7 @@ static HYPRSPACE_STYLE_FILE_NAME: &str = "hypr.css";
 static HYPRSPACE_APPLICATION_TEMPLATE_FILE_NAME: &str = "hypr_fav_app.html";
 
 // the terminal to use for shell executables
-static HYPRSPACE_PREFFERRED_TERMINAL_EMULATOR: &str = "alacritty"; //TODO: change to xterm
+static HYPRSPACE_PREFFERRED_TERMINAL_EMULATOR: &str = "alacritty";
 
 
 // ### Setup ###

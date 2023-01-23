@@ -250,9 +250,8 @@
         invoke("handle_execution_request", {
             exePath: exe,
             typeOfExe: type,
-        }).then(() => {
-            minimizeWindow();
         });
+        minimizeWindow();
     }
 
     let searchInput = "";

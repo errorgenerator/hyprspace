@@ -1,4 +1,6 @@
-/*
+use std::fs;
+use directories::BaseDirs;
+
 // standard name for the $PATH variable
 static OS_PATH_VAR_NAME: &str = "PATH";
 
@@ -11,6 +13,9 @@ static APPLICATION_PIXMAPS_DIRECTORY: &str = "/usr/share/pixmaps/";
 
 // hyprspace main window label 
 static HYPRSPACE_LABEL: &str = "hyprspace";
+
+// prefferred terminal emulator
+static HYPRSPACE_PREF_TERM_EMULATOR: &str = "alacritty";
 
 // standard ok response over socket
 static HYPRSPACE_OK_SOCK_RESPONSE: &str = "OK";
@@ -41,4 +46,39 @@ static HYPRSPACE_STYLE_FILE_NAME: &str = "hypr.css";
 
 // standard name for application template file 
 static HYPRSPACE_APPLICATION_TEMPLATE_FILE_NAME: &str = "hypr_fav_app.html";
-*/
+
+// the terminal to use for shell executables
+static HYPRSPACE_PREFFERRED_TERMINAL_EMULATOR: &str = "alacritty";
+
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct AppConfiguration {
+
+}
+
+pub fn load_app_configuration() -> AppConfiguration {
+    // get the config dir first
+    let base_dirs = match BaseDirs::new() {
+        None => panic!("Unable to determine Base-Directories, something feels off"),
+        Some(dirs) => dirs
+    };
+
+    let config_dir = base_dirs.config_dir();
+
+    let file_path = format!("{}/{}/{}", config_dir.display(), HYPRSPACE_CONFIG_DIR_NAME, HYPRSPACE_CONFIG_FILE_NAME);
+    let path_to_config = file_path.clone().as_str();
+    if config_file_exists(path_to_config) {
+
+    }
+}
+
+fn create_config_from_defaults() -> AppConfiguration {
+    
+}
+
+fn load_config_from_file() -> AppConfiguration {
+
+}
+
+fn config_file_exists(path_to_config: &str) -> bool {
+    fs::metadata(path_to_config).is_ok()
+}
