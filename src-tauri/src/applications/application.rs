@@ -2,12 +2,12 @@ use std::{
     collections::HashMap,
     fs::File,
     io::{BufRead, BufReader},
-    path::PathBuf
+    path::PathBuf,
 };
 
 use cached::proc_macro::cached;
 
-use crate::APPLICATION_DESKTOP_FILES_DIRECTORY;
+use crate::config::create_app_configuration;
 
 use super::list_dir_contents;
 
@@ -26,20 +26,25 @@ pub struct Application {
 ///
 /// Note that the names vector `Vec<String>` is sorted alphabetically to ease
 /// searching through it later on.
-#[cached(size=1)]
+#[cached(size = 1)]
 pub fn build_applications() -> (Vec<String>, HashMap<String, Application>) {
+
+    let cached_configuration = create_app_configuration(None);
 
     let mut names_vec: Vec<String> = Vec::new();
     let mut paths_map: HashMap<String, Application> = HashMap::new();
 
-    let app_dir_path_buf = PathBuf::from(APPLICATION_DESKTOP_FILES_DIRECTORY);
+    let app_dir_path_buf = PathBuf::from(cached_configuration.applications.desktop_files_dir.unwrap());
 
     let (appdir, mut contents) = list_dir_contents(app_dir_path_buf);
     let appdir_string = appdir.as_os_str().to_string_lossy();
 
     for file_path in contents.clone() {
         // must be a subdir
-        if !file_path.ends_with(".desktop") && !file_path.ends_with(".list") && !file_path.ends_with(".cache") {
+        if !file_path.ends_with(".desktop")
+            && !file_path.ends_with(".list")
+            && !file_path.ends_with(".cache")
+        {
             let subdir_string = format!("{}/{}", appdir_string.clone(), file_path.clone());
             let (_subdir, subdir_contents) = list_dir_contents(PathBuf::from(subdir_string));
             for con in subdir_contents {
@@ -50,19 +55,18 @@ pub fn build_applications() -> (Vec<String>, HashMap<String, Application>) {
     }
 
     for file in contents {
-
         // skip
         if !file.ends_with(".desktop") {
             continue;
         }
 
-        let full_path = format!("{}{}",appdir_string.clone(), file.clone());
+        let full_path = format!("{}{}", appdir_string.clone(), file.clone());
         let full_path_path_buf = PathBuf::from(full_path);
         let (app_name, app_exe, app_icon) = match parse_desktop_file(full_path_path_buf) {
             None => {
                 continue;
-            },
-            Some((name, exe, icon)) => (name, exe, icon)
+            }
+            Some((name, exe, icon)) => (name, exe, icon),
         };
         names_vec.push(app_name.clone());
         let icon = get_icon_path_string(app_icon);
@@ -96,7 +100,6 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
     let mut got_icon = false;
 
     for line in reader.lines() {
-        
         if got_name && got_exec && got_icon {
             break;
         }
@@ -109,10 +112,13 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
                     why
                 );
                 return None;
-            },
+            }
             Ok(ls) => {
-
-                if ls.starts_with("[") || ls.starts_with(" ") {
+                if ls.starts_with("[")
+                    || ls.starts_with(" ")
+                    || ls.contains("NoDisplay=true")
+                    || ls.contains("NoDisplay=True")
+                {
                     continue;
                 }
 
@@ -126,7 +132,7 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
                     got_exec = true;
                 }
 
-                if ls.starts_with("Icon=") && !got_icon{
+                if ls.starts_with("Icon=") && !got_icon {
                     app_icon.push_str(ls.clone().replace("Icon=", "").as_str());
                     got_icon = true;
                 }
@@ -140,7 +146,6 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
 fn get_icon_path_string(name: String) -> String {
     super::icons::get_icon_path_for_application(name)
 }
-
 
 /// Create an Application struct
 fn create(name: String, exe: String, path_to_icon: String) -> Application {

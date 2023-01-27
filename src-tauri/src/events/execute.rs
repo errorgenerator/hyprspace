@@ -1,11 +1,18 @@
 use std::process::Command;
 
-use crate::HYPRSPACE_PREFFERRED_TERMINAL_EMULATOR;
+use crate::config::create_app_configuration;
 
 #[tauri::command]
 pub async fn handle_execution_request(exe_path: String, type_of_exe: String) -> String {
+    let cached_config = create_app_configuration(None);
+
     if type_of_exe.eq("executable") {
-        match HYPRSPACE_PREFFERRED_TERMINAL_EMULATOR {
+        match cached_config
+            .config
+            .preferred_terminal_emulator
+            .unwrap()
+            .as_str()
+        {
             "kitty" => {
                 return spawn_with_kitty(exe_path.clone().as_str());
             }
@@ -25,9 +32,13 @@ pub async fn handle_execution_request(exe_path: String, type_of_exe: String) -> 
 
     match Command::new(exe_path.clone().as_str()).spawn() {
         Err(why) => {
-            error!("Unable to launch application: {}\nError: {}", exe_path.clone(), why);
+            error!(
+                "Unable to launch application: {}\nError: {}",
+                exe_path.clone(),
+                why
+            );
             return String::from("Error while trying to launch application");
-        },
+        }
         Ok(_c) => {
             return String::from("OK");
         }

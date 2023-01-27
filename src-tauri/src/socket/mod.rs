@@ -9,20 +9,23 @@ use std::{
 
 use tauri::Window;
 
-use crate::{HYPRSPACE_ERR_SOCK_RESPONSE, HYPRSPACE_OK_SOCK_RESPONSE};
+use crate::config::create_app_configuration;
+use crate::config::defaults::{HYPRSPACE_ERR_SOCK_RESPONSE, HYPRSPACE_OK_SOCK_RESPONSE};
 
 
 
-pub fn start_listening_thread_on_socket(window :Window,socket_path: &'static str) -> JoinHandle<()> {
-    start_listen_thread(window, socket_path)
+pub fn start_listening_thread_on_socket(window :Window) -> JoinHandle<()> {
+    start_listen_thread(window)
 }
 
 
 
-fn start_listen_thread(window: Window, path: &'static str) -> JoinHandle<()> {
+fn start_listen_thread(window: Window) -> JoinHandle<()> {
+
     let join_handle_for_thread = std::thread::spawn(move || {
-        let path_to_socket = path.clone();
-        listen_to_unix_socket(window, Path::new(path_to_socket));
+        let cached_config = create_app_configuration(None);
+        let path_to_socket = cached_config.socket.socket_file_path.unwrap().clone();
+        listen_to_unix_socket(window, Path::new(&path_to_socket));
     });
 
     join_handle_for_thread
