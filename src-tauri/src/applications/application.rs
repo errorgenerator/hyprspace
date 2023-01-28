@@ -28,13 +28,13 @@ pub struct Application {
 /// searching through it later on.
 #[cached(size = 1)]
 pub fn build_applications() -> (Vec<String>, HashMap<String, Application>) {
-
     let cached_configuration = create_app_configuration(None);
 
     let mut names_vec: Vec<String> = Vec::new();
     let mut paths_map: HashMap<String, Application> = HashMap::new();
 
-    let app_dir_path_buf = PathBuf::from(cached_configuration.applications.desktop_files_dir.unwrap());
+    let app_dir_path_buf =
+        PathBuf::from(cached_configuration.applications.desktop_files_dir.unwrap());
 
     let (appdir, mut contents) = list_dir_contents(app_dir_path_buf);
     let appdir_string = appdir.as_os_str().to_string_lossy();
@@ -100,10 +100,6 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
     let mut got_icon = false;
 
     for line in reader.lines() {
-        if got_name && got_exec && got_icon {
-            break;
-        }
-
         match line {
             Err(why) => {
                 error!(
@@ -114,12 +110,13 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
                 return None;
             }
             Ok(ls) => {
-                if ls.starts_with("[")
-                    || ls.starts_with(" ")
-                    || ls.contains("NoDisplay=true")
-                    || ls.contains("NoDisplay=True")
-                {
+                if ls.starts_with("[") || ls.starts_with(" ") {
                     continue;
+                }
+
+                // ignore certain applications
+                if ls.starts_with("NoDisplay=True") || ls.starts_with("NoDisplay=true") {
+                    return None;
                 }
 
                 if ls.starts_with("Name=") && !got_name {
@@ -128,7 +125,16 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
                 }
 
                 if ls.starts_with("Exec=") && !got_exec {
-                    app_exe.push_str(ls.clone().replace("Exec=", "").as_str());
+                    let mut exe_line = ls.clone();
+                    exe_line = exe_line.replace("Exec=", "");
+                    let flag_offset = match exe_line.find(" --") {
+                        None => {
+                            return None;
+                        },
+                        Some(o) => o
+                    };
+                    exe_line.replace_range(flag_offset.., "");
+                    app_exe.push_str(exe_line.clone().as_str());
                     got_exec = true;
                 }
 

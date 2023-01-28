@@ -16,18 +16,18 @@ tauri-build = { version = "1.2", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.2", features = ["cli", "fs-copy-file", "fs-exists", "fs-read-dir", "fs-read-file", "path-all", "protocol-all", "shell-execute", "shell-open", "window-center", "window-close", "window-hide"] }
+tauri = { version = "1.2", features = ["cli", "clipboard", "fs-copy-file", "fs-exists", "fs-read-dir", "fs-read-file", "path-all", "protocol-all", "reqwest-client", "shell-execute", "shell-open", "window-center", "window-close", "window-hide", "wry"] }
 log = "0.4.17"
-env_logger ="0.10.0"
+env_logger = "0.10.0"
 notify = "5.0.0"
 notify-debouncer-mini = "0.2.1"
 directories = "4.0.1"
-sysinfo ="0.27.7"
+sysinfo = "0.27.7"
 freedesktop-icons = "0.2.3"
 linicon-theme = "1.2.0"
 cached = "0.42.0"
 rust-fuzzy-search = "0.1.1"
-toml ="0.5.11"
+toml = "0.7.0"
 
 [features]
 # by default Tauri runs in production mode

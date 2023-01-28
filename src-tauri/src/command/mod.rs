@@ -3,6 +3,8 @@ use std::collections::HashMap;
 
 use tauri::{api::cli::ArgData, App};
 
+
+
 pub struct HyprSpaceCommand {
     pub cmd_name: String,
     pub cmd_function: fn(app: &mut App, data: &ArgData) -> String,
@@ -16,6 +18,29 @@ impl HyprSpaceCommand {
 
 pub fn help_cmd(_app: &mut App, data: &ArgData) -> String {
     data.value.to_string()
+}
+
+
+pub fn show_window_on_startup_cmd(app: &mut App, _data: &ArgData) -> String {
+    use tauri::Manager;
+    use crate::config::defaults;
+    let window = app.get_window(defaults::HYPRSPACE_LABEL);
+
+    match window {
+        None => {
+            panic!("Unable to get the window on startup, something is fucky here...");
+        },
+        Some(w) => {
+            match w.show() {
+                Err(why) => {
+                    panic!("Was able to get the window on startup, but an Error occurred!\nError: {}", why);
+                },
+                Ok(()) => {}
+            }
+        }
+    }
+
+    String::from("Started Application with window shown on startup")
 }
 
 pub fn select_command(

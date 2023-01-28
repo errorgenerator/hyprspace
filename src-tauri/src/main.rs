@@ -1,11 +1,5 @@
 // TODO: Clean up Code
-// TODO: Change this config
-// TODO: gotta use a Boyer-Moore algorithm for searching applications.
-#![cfg_attr(
-    all(not(debug_assertions), target_os = "linux"),
-    windows_subsystem = "windows"
-)]
-
+#[cfg(target_os = "linux")]
 #[macro_use]
 extern crate log;
 
@@ -18,8 +12,9 @@ mod socket;
 use std::process;
 
 use events::{react_to_error_message, search::get_search_results};
+
 use socket::start_listening_thread_on_socket;
-use tauri::Manager;
+use tauri::{Manager, WindowBuilder, WindowUrl};
 
 use crate::{
     applications::load_apps_list,
@@ -42,13 +37,42 @@ fn main() {
     // initialize the application cache
     load_apps_list(false);
 
-    let available_commands = vec![HyprSpaceCommand {
-        cmd_name: "help".to_string(),
-        cmd_function: command::help_cmd,
-    }];
+    let available_commands = vec![
+        HyprSpaceCommand {
+            cmd_name: "help".to_string(),
+            cmd_function: command::help_cmd,
+        },
+        HyprSpaceCommand {
+            cmd_name: "show-window".to_string(),
+            cmd_function: command::show_window_on_startup_cmd,
+        },
+    ];
 
+    // Build the main window
     tauri::Builder::default()
         .setup(|app| {
+            // create the main window
+            match WindowBuilder::new(app, HYPRSPACE_LABEL, WindowUrl::App("index.html".into()))
+                .title(HYPRSPACE_LABEL)
+                .enable_clipboard_access()
+                .accept_first_mouse(true)
+                .resizable(true)
+                .center()
+                .always_on_top(true)
+                .skip_taskbar(true)
+                .transparent(true)
+                .decorations(false)
+                .focused(true)
+                .fullscreen(true)
+                .visible(false)
+                .build()
+            {
+                Err(why) => {
+                    panic!("Unable to buld window!\nError: {}", why);
+                }
+                Ok(_s) => {}
+            }
+
             let window = match app.get_window(HYPRSPACE_LABEL) {
                 None => panic!("Unable to get hyprspace window"),
                 Some(w) => w,

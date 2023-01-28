@@ -1,5 +1,4 @@
 //TODO: Documentation!
-//TODO: Remove Dead Code
 use std::thread::JoinHandle;
 use std::{
     io::{BufRead, BufReader, Write},
@@ -12,16 +11,11 @@ use tauri::Window;
 use crate::config::create_app_configuration;
 use crate::config::defaults::{HYPRSPACE_ERR_SOCK_RESPONSE, HYPRSPACE_OK_SOCK_RESPONSE};
 
-
-
-pub fn start_listening_thread_on_socket(window :Window) -> JoinHandle<()> {
+pub fn start_listening_thread_on_socket(window: Window) -> JoinHandle<()> {
     start_listen_thread(window)
 }
 
-
-
 fn start_listen_thread(window: Window) -> JoinHandle<()> {
-
     let join_handle_for_thread = std::thread::spawn(move || {
         let cached_config = create_app_configuration(None);
         let path_to_socket = cached_config.socket.socket_file_path.unwrap().clone();
@@ -99,20 +93,21 @@ fn listen_to_unix_socket(window: Window, path_to_socket: &Path) {
                 let socket_handle = match socket.try_clone() {
                     Err(why) => {
                         panic!("Tried creating a handle for socket: {}, but was unable to do so!\nError: {}", path_to_socket.display(), why);
-                    },
-                    Ok(s) => s
+                    }
+                    Ok(s) => s,
                 };
                 let mut conn = BufReader::new(socket_handle);
 
                 match conn.read_line(&mut response) {
-
                     Err(why) => {
                         error!("Unable to read message from socket!\nError: {}", why);
                     }
                     Ok(_u) => {
                         info!("Client: {:?} --> Message: {}", addr, response);
 
-                        match socket.write_all(parse_command(&window, response.replace("\n", "")).as_bytes()) {
+                        match socket.write_all(
+                            parse_command(&window, response.replace("\n", "")).as_bytes(),
+                        ) {
                             Err(why) => {
                                 error!("Unable to send response to command!\nError: {}", why);
                             }
@@ -135,7 +130,7 @@ fn show_window(window: &Window) -> String {
                 why
             );
             return String::from(HYPRSPACE_ERR_SOCK_RESPONSE);
-        },
+        }
         Ok(()) => {
             return String::from(HYPRSPACE_OK_SOCK_RESPONSE);
         }
@@ -143,7 +138,6 @@ fn show_window(window: &Window) -> String {
 }
 
 fn hide_window(window: &Window) -> String {
-
     match window.hide() {
         Err(why) => {
             error!(
@@ -152,19 +146,16 @@ fn hide_window(window: &Window) -> String {
                 why
             );
             return String::from(HYPRSPACE_ERR_SOCK_RESPONSE);
-        },
+        }
         Ok(()) => {
             return String::from(HYPRSPACE_OK_SOCK_RESPONSE);
         }
     }
-
 }
 
 fn parse_command(window: &Window, command: String) -> String {
-    
     match command.as_str() {
         "TOGGLE" => {
-
             let is_window_visible_atm = match window.is_visible() {
                 Err(why) => {
                     error!(
@@ -173,25 +164,25 @@ fn parse_command(window: &Window, command: String) -> String {
                         why
                     );
                     false
-                },
-                Ok(b) => b
+                }
+                Ok(b) => b,
             };
 
             match is_window_visible_atm {
                 false => {
                     return show_window(window);
-                },
+                }
                 true => {
                     return hide_window(window);
                 }
             }
-        },
+        }
         "SHOW" => {
             return show_window(window);
-        },
+        }
         "HIDE" => {
             return hide_window(window);
-        },
+        }
         _ => {
             warn!("A client sent a request on the socket, but I was unable to understand what he said!\nMessage was: {}", command);
             return String::from(HYPRSPACE_ERR_SOCK_RESPONSE);

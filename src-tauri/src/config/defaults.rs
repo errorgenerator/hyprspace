@@ -39,3 +39,6 @@ pub static HYPRSPACE_STYLE_FILE_NAME: &str = "hypr.css";
 
 // standard name for application template file 
 pub static HYPRSPACE_APPLICATION_TEMPLATE_FILE_NAME: &str = "hypr_fav_app.html";
+
+// standard amount of applications to show in search results
+pub static HYPRSPACE_APPLICATION_RESULTS_LIMIT: u32 = 5;

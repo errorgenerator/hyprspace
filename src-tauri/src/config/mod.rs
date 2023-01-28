@@ -17,6 +17,8 @@ use defaults::{
     HYPRSPACE_PREF_TERM_EMULATOR
 };
 
+use self::defaults::HYPRSPACE_APPLICATION_RESULTS_LIMIT;
+
 
 
 /// This Struct holds the configuration for the entire application
@@ -45,6 +47,7 @@ pub struct Config {
     pub style_sheet: Option<String>,
     pub application_template: Option<String>,
     pub preferred_terminal_emulator: Option<String>,
+    pub application_results_limit: Option<u32>,
 }
 
 #[cached(size=1)]
@@ -68,7 +71,8 @@ fn create_app_config_from_defaults() -> AppConfiguration {
     let config = Config {
         style_sheet: Option::Some(String::from(HYPRSPACE_STYLE_FILE_NAME)),
         application_template: Option::Some(String::from(HYPRSPACE_APPLICATION_TEMPLATE_FILE_NAME)),
-        preferred_terminal_emulator: Option::Some(String::from(HYPRSPACE_PREF_TERM_EMULATOR))
+        preferred_terminal_emulator: Option::Some(String::from(HYPRSPACE_PREF_TERM_EMULATOR)),
+        application_results_limit: Option::Some(HYPRSPACE_APPLICATION_RESULTS_LIMIT),
     };
 
     AppConfiguration { applications: applications, socket: socket, config: config }
@@ -190,6 +194,15 @@ fn fill_configuration(app_config: AppConfiguration) -> AppConfiguration {
         },
         Some(p) => {
             config.preferred_terminal_emulator = Option::Some(p.clone());
+        }
+    }
+
+    match config.application_results_limit {
+        None => {
+            config.application_results_limit = Option::Some(HYPRSPACE_APPLICATION_RESULTS_LIMIT);
+        },
+        Some(p) => {
+            config.application_results_limit = Option::Some(p.clone());
         }
     }
 

@@ -143,18 +143,6 @@
       "active": false
     },
     "windows": [
-      {
-        "visible": true,
-        "label": "hyprspace",
-        "center": true,
-        "focus": true,
-        "fullscreen": true,
-        "resizable": false,
-        "alwaysOnTop": true,
-        "transparent": true,
-        "decorations": false,
-        "title": "hyprspace"
-      }
     ]
   }
 }

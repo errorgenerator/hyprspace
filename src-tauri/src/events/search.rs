@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use rust_fuzzy_search::fuzzy_search_best_n;
 
-use crate::applications::{self, application::Application, executable::Executable};
+use crate::{applications::{self, application::Application, executable::Executable}, config::create_app_configuration};
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SearchResult {
@@ -13,9 +13,12 @@ pub struct SearchResult {
 #[tauri::command]
 pub async fn get_search_results(
     search_term: String,
-    limit: u32,
     reload_cache: bool,
 ) -> SearchResult {
+
+    let cached_config = create_app_configuration(None);
+
+    let limit = cached_config.config.application_results_limit.unwrap();
 
     let mut found_apps: Vec<Application> = Vec::new();
     let mut found_exes: Vec<Executable> = Vec::new();
