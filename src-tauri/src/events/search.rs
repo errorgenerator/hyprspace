@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use rust_fuzzy_search::fuzzy_search_best_n;
+use rust_fuzzy_search::{fuzzy_search_best_n, fuzzy_search_sorted};
 
 use crate::{applications::{self, application::Application, executable::Executable}, config::create_app_configuration};
 
@@ -23,7 +23,8 @@ pub async fn get_search_results(
     let mut found_apps: Vec<Application> = Vec::new();
     let mut found_exes: Vec<Executable> = Vec::new();
 
-    if !search_term.is_empty() {
+    if !search_term.trim().is_empty() && !search_term.trim().eq("") {
+
         let applications = applications::load_apps_list(reload_cache);
 
         let app_names = applications.application_names_vec.clone();
@@ -122,7 +123,7 @@ fn find_applications(
     }
 
     let mut found_applications: Vec<Application> = Vec::new();
-    let mut best_matches = fuzzy_search_best_n(search_term.as_str(), &app_str_vec, limit as usize);
+    let mut best_matches = fuzzy_search_sorted(search_term.as_str(), &app_str_vec);
 
     // sort the array
     best_matches.sort_unstable_by(|a, b| {
@@ -132,13 +133,21 @@ fn find_applications(
         }
     });
 
+    let mut count = 0;
+
     for (name, _score) in best_matches {
+
+        if count >= limit {
+            break;
+        }
+
         match app_map.get(&String::from(name)) {
             None => {
                 continue;
             },
             Some(a) => {
                 found_applications.push(a.clone());
+                count += 1;
             }
         }
     }

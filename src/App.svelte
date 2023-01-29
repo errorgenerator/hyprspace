@@ -34,6 +34,12 @@
     return event;
   }
 
+  function removeExistingChildrenFromResults(resultsDiv) {
+        while (resultsDiv.firstChild) {
+            resultsDiv.removeChild(resultsDiv.lastChild);
+        }
+    }
+
   /**
    * This function will be called if the user presses the Esc - Key.
    * On pressing the Esc - Key the window will minimize, waiting to be re-opened.
@@ -77,9 +83,6 @@
       });
   }
 </script>
-
-<!-- Configuration of Window -->
-<svelte:window on:keydown={handleKeyDownEvent} />
 
 <main class="container">
   <Menu />

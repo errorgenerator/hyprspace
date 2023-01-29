@@ -3,6 +3,12 @@
     import { emit } from "@tauri-apps/api/event";
     import { appWindow } from "@tauri-apps/api/window";
 
+    let searchInput = "";
+    let application_row = undefined;
+    let exe_row = undefined;
+    let buttons_array = undefined;
+    let currentButton = 0;
+
     class Application {
         constructor(name, exe, path_to_icon) {
             this.name = name;
@@ -45,11 +51,11 @@
     }
 
     function findFittingIcon(iconSrc) {
-        if(iconSrc === undefined || iconSrc === "") {
+        if (iconSrc === undefined || iconSrc === "") {
             return "/placeholder.svg";
         }
 
-        return convertFileSrc(iconSrc)
+        return convertFileSrc(iconSrc);
     }
 
     function removeExistingChildrenFromResults(resultsDiv) {
@@ -104,7 +110,7 @@
         appButton.type = "button";
         appButton.classList.add("hyprspace-app-button");
         appButton.id = application.name + "-button";
-        appButton.addEventListener("click", function() {
+        appButton.addEventListener("click", function () {
             emitExecutionRequestEvent(application.exe, "application");
         });
 
@@ -129,7 +135,7 @@
 
         executablesObject.forEach((element) => {
             exeContainer.appendChild(buildExecutableButton(element));
-        })
+        });
 
         return exeContainer;
     }
@@ -151,7 +157,7 @@
         exePath.classList.add("hyprspace-exe-fullpath");
         exePath.id = executable.name + "-fullpath";
 
-        let exeButton = document.createElement("button")
+        let exeButton = document.createElement("button");
         exeButton.type = "button";
         exeButton.classList.add("hyprspace-exe-button");
         exeButton.id = executable.name + "-button";
@@ -164,7 +170,7 @@
          *  -> Icon
          *  -> Name
          *      -> Full Path
-        */
+         */
 
         exeButton.appendChild(icon);
         exeButton.appendChild(exeName);
@@ -194,10 +200,13 @@
             (result.executables === undefined ||
                 result.applications.length === 0)
         ) {
-            toggleBetweenEmptyAndContains(resultsDiv, true);
+            application_row = undefined;
+            exe_row = undefined;
+            buttons_array = undefined;
+            toggleBetweenEmptyAndContains(resultsDiv, false);
         } else {
             let resultObject = buildSearchResultObject(result);
-            toggleBetweenEmptyAndContains(resultsDiv, false);
+            toggleBetweenEmptyAndContains(resultsDiv, true);
 
             let executablesElement = buildExecutablesElement(
                 resultObject.executables
@@ -205,6 +214,10 @@
             let applicationsElement = buildApplicationsElement(
                 resultObject.applications
             );
+
+            application_row = Array.from(applicationsElement.children);
+            exe_row = Array.from(executablesElement.children);
+            buttons_array = application_row.concat(exe_row);
 
             appendResultBoxesToDocument(
                 resultsDiv,
@@ -214,8 +227,13 @@
         }
     }
 
-
     function minimizeWindow() {
+        let resultsDiv = document.getElementById("search-result-box");
+        searchInput = "";
+        application_row = undefined;
+        exe_row = undefined;
+        buttons_array = undefined;
+        removeExistingChildrenFromResults(resultsDiv);
         appWindow
             .hide()
             .then(
@@ -251,10 +269,11 @@
             exePath: exe,
             typeOfExe: type,
         });
+        let resultsDiv = document.getElementById("search-result-box");
+        removeExistingChildrenFromResults(resultsDiv);
+        searchInput = "";
         minimizeWindow();
     }
-
-    let searchInput = "";
 
     function emitSearchInputChangeEvent(currentInputString) {
         invoke("get_search_results", {
@@ -264,15 +283,70 @@
             buildSearchResultBoxes(res);
         });
     }
+
+    function initial_focus(el) {
+        el.focus();
+    }
+
+    function handleKeyDownEvent(event) {
+        let key = event.key;
+        let code = event.code;
+
+        console.log(key);
+
+        if (key === "Escape" || code === "Escape") {
+            minimizeWindow();
+        } else if (buttons_array !== undefined && (key === "ArrowDown" || code === "ArrowDown")) {
+            moveSelectionDown();
+        } else if(buttons_array !== undefined && (key === "ArrowUp" || code === "ArrowUp")) {
+            moveSelectionUp();
+        } else if(key === "Backspace" || code === "Backspace") {
+            if(searchInput.length > 0) {
+                searchInput = searchInput.substring(0, searchInput.length - 1);
+            }
+        } 
+    }
+
+    function moveSelectionUp() {
+        currentButton -= 1;
+        let currentlyFocused = document.activeElement;
+        if (currentlyFocused.id === "hyprspace-search-bar-input") {
+            buttons_array[buttons_array.length - 1].focus();
+            currentButton = buttons_array.length - 1;
+        } else if (currentButton >= 0) {
+            buttons_array[currentButton].focus();
+        } else {
+            document.getElementById("hyprspace-search-bar-input").focus();
+        }
+    }
+
+    function moveSelectionDown() {
+        currentButton += 1;
+        let currentlyFocused = document.activeElement;
+        if (currentlyFocused.id === "hyprspace-search-bar-input") {
+            buttons_array[0].focus();
+            currentButton = 0;
+        } else if (currentButton < buttons_array.length) {
+            buttons_array[currentButton].focus();
+        } else {
+            document.getElementById("hyprspace-search-bar-input").focus();
+        }
+    }
 </script>
+
+<!-- Configuration of Window -->
+<svelte:window on:keydown={handleKeyDownEvent} />
 
 <div class="search-container">
     <div class="hyprspace-search-bar">
         <input
             type="text"
             placeholder="Search ... "
+            class="hyprspace-search-bar-input"
+            id="hyprspace-search-bar-input"
             bind:value={searchInput}
             on:input={() => emitSearchInputChangeEvent(searchInput)}
+            use:initial_focus
         />
     </div>
     <div class="hyprspace-search-results empty" id="search-result-box" />

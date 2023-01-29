@@ -127,14 +127,15 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
                 if ls.starts_with("Exec=") && !got_exec {
                     let mut exe_line = ls.clone();
                     exe_line = exe_line.replace("Exec=", "");
-                    let flag_offset = match exe_line.find(" --") {
+                    match exe_line.find(" --") {
                         None => {
-                            return None;
+                            app_exe.push_str(exe_line.clone().as_str());
                         },
-                        Some(o) => o
+                        Some(o) => {
+                            exe_line.replace_range(o.., "");
+                            app_exe.push_str(exe_line.clone().as_str());
+                        }
                     };
-                    exe_line.replace_range(flag_offset.., "");
-                    app_exe.push_str(exe_line.clone().as_str());
                     got_exec = true;
                 }
 
@@ -152,6 +153,8 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
 fn get_icon_path_string(name: String) -> String {
     super::icons::get_icon_path_for_application(name)
 }
+
+
 
 /// Create an Application struct
 fn create(name: String, exe: String, path_to_icon: String) -> Application {
