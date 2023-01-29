@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories=Education;
+Exec=hyprspace
+Icon=hyprspace
+Name=hyprspace
+Terminal=false
+Type=Application
+X-AppImage-Version=8635cfc

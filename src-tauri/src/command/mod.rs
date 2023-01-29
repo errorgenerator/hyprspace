@@ -55,8 +55,10 @@ pub fn select_command(
             match args.get(&command.cmd_name) {
                 None => continue,
                 Some(d) => {
-                    let cmd_output = command.execute(app, d);
-                    collected_output = format!("{}\n{}", collected_output, cmd_output);
+                    if d.occurrences > 0 {
+                        let cmd_output = command.execute(app, d);
+                        collected_output = format!("{}\n{}", collected_output, cmd_output);
+                    }
                 }
             };
         }

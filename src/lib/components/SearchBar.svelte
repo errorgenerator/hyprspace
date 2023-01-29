@@ -144,7 +144,7 @@
 
     function buildExecutableButton(executable) {
         let icon = document.createElement("img");
-        icon.src = "/placeholder.svg";
+        icon.src = "./shell.svg";
         icon.alt = "Icon for " + executable.name;
         icon.classList.add("hyprspace-exe-icon");
         icon.id = executable.name.toLowerCase().replace(" ", "-") + "-icon";
