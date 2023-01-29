@@ -91,9 +91,9 @@ following order:
 
 It will return name of the first theme it found.
 
-So if you have (for example) Adwaita as your GTK3 Icon-Theme and Breeze as your KDE-Plasma Icon-Theme set, it will use the Adwaite theme, since it first checks the GTK3 theme before KDE.
+So if you have (for example) Adwaita as your GTK3 Icon-Theme and Breeze as your KDE-Plasma Icon-Theme set, it will use the Adwaita theme, since it first checks the GTK3 theme before KDE.
 
-Note: if no Theme can be determine it will use the `hicolor` theme as fallback!
+Note: if no Theme can be determined it will use the `hicolor` theme as fallback!
 
 My Advice: Use something like **[lxappearance](https://github.com/lxde/lxappearance)** to change your icon theme and then the icons will change after a restart of Hyprspace.
 
