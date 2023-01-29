@@ -2,7 +2,7 @@ name: 'publish'
 on:
   push:
     tags:
-      - 'app-v'
+      - 'app-v*'
     workflow-dispatch:
 
 jobs:
