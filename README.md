@@ -1,5 +1,29 @@
 # Hyprspace
 
+**HYPRSPACE IS MAINLY FOR MY PERSONAL USE, SO PLEASE BE PATIENT. IT WAS NEVER INTENDED TO BE MORE THAN JUST A SIDE PROJECT.
+THUS, YOU CAN EXPECT TO FIND A LOT OF BAD CODE HERE AS WELL AS ONLY LACKLUSTER DOCUMENTATION**
+
+*i will add more documentation soon, i promise ...*
+
+- [Hyprspace](#hyprspace)
+  * [❓ About this Repo:](#--about-this-repo-)
+  * [🗒️ The Basics:](#----the-basics-)
+  * [🛠️ Configuration and ✨Styling✨:](#----configuration-and--styling--)
+    + [⚙️ Config file location:](#---config-file-location-)
+    + [✨ Styling file location:](#--styling-file-location-)
+    + [⚙️ Config file:](#---config-file-)
+    + [✨ Styling:](#--styling-)
+    + [❓ How do I change the look of the Application-Icons?](#--how-do-i-change-the-look-of-the-application-icons-)
+    + [❗ Hints:](#--hints-)
+  * [📦 Used Crates:](#---used-crates-)
+  * [🧑‍💻 Debugging and Logs:](#------debugging-and-logs-)
+  * [💻 Used Functions:](#---used-functions-)
+    + [get_search_results: get raw search result HTML](#get-search-results--get-raw-search-result-html)
+  * [✉️ Events:](#---events-)
+    + [ErrorEvent: 'error-message'](#errorevent---error-message-)
+    + [SearchInputEvent: 'search-message'](#searchinputevent---search-message-)
+    + [LoadStyleSheetMessage: 'style-message'](#loadstylesheetmessage---style-message-)
+
 ## ❓ About this Repo:
 
 This little Application is something I cooked up while on
@@ -84,14 +108,18 @@ tauri-build = { version = "1.2", features = [] }
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.2", features = ["cli", "fs-copy-file", "fs-exists", "fs-read-dir", "fs-read-file", "path-all", "protocol-all", "shell-execute", "shell-open", "window-center", "window-close", "window-hide"] }
+tauri = { version = "1.2", features = ["cli", "clipboard", "fs-copy-file", "fs-exists", "fs-read-dir", "fs-read-file", "path-all", "protocol-all", "reqwest-client", "shell-execute", "shell-open", "window-center", "window-close", "window-hide", "wry"] }
 log = "0.4.17"
-env_logger ="0.10.0"
+env_logger = "0.10.0"
 notify = "5.0.0"
+notify-debouncer-mini = "0.2.1"
 directories = "4.0.1"
-sysinfo ="0.27.7"
+sysinfo = "0.27.7"
 freedesktop-icons = "0.2.3"
 linicon-theme = "1.2.0"
+cached = "0.42.0"
+rust-fuzzy-search = "0.1.1"
+toml = "0.7.0"
 ```
 
 ## 🧑‍💻 Debugging and Logs:
