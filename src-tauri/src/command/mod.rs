@@ -20,7 +20,7 @@ pub fn help_cmd(_app: &mut App, data: &ArgData) -> String {
     data.value.to_string()
 }
 
-
+// TODO
 pub fn show_window_on_startup_cmd(app: &mut App, _data: &ArgData) -> String {
     use tauri::Manager;
     use crate::config::defaults;

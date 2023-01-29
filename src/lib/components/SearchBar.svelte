@@ -1,4 +1,5 @@
 <script>
+    // TODO: Clean up this messy code and some refactoring would be nice.
     import { invoke, convertFileSrc } from "@tauri-apps/api/tauri";
     import { emit } from "@tauri-apps/api/event";
     import { appWindow } from "@tauri-apps/api/window";
@@ -94,22 +95,23 @@
         appIcon.src = application.path_to_icon;
         appIcon.alt = "Icon for " + application.name;
         appIcon.classList.add("hyprspace-app-icon");
-        appIcon.id = application.name + "-icon";
+        appIcon.id = application.name.toLowerCase().replace(" ", "-") + "-icon";
 
         let appName = document.createElement("div");
         appName.innerHTML = application.name;
         appName.classList.add("hyprspace-app-name");
-        appName.id = application.name + "-name";
+        appName.id = application.name.toLowerCase().replace(" ", "-") + "-name";
 
         let exePath = document.createElement("div");
         exePath.innerHTML = application.exe;
         exePath.classList.add("hyprspace-app-exe");
-        exePath.id = application.name + "-exe";
+        exePath.id = application.name.toLowerCase().replace(" ", "-") + "-exe";
 
         let appButton = document.createElement("button");
         appButton.type = "button";
         appButton.classList.add("hyprspace-app-button");
-        appButton.id = application.name + "-button";
+        appButton.id =
+            application.name.toLowerCase().replace(" ", "-") + "-button";
         appButton.addEventListener("click", function () {
             emitExecutionRequestEvent(application.exe, "application");
         });
@@ -145,22 +147,24 @@
         icon.src = "/placeholder.svg";
         icon.alt = "Icon for " + executable.name;
         icon.classList.add("hyprspace-exe-icon");
-        icon.id = executable.name + "-icon";
+        icon.id = executable.name.toLowerCase().replace(" ", "-") + "-icon";
 
         let exeName = document.createElement("div");
         exeName.innerHTML = executable.name;
         exeName.classList.add("hyprspace-exe-name");
-        exeName.id = executable.name + "-name";
+        exeName.id = executable.name.toLowerCase().replace(" ", "-") + "-name";
 
         let exePath = document.createElement("div");
         exePath.innerHTML = executable.full_path;
         exePath.classList.add("hyprspace-exe-fullpath");
-        exePath.id = executable.name + "-fullpath";
+        exePath.id =
+            executable.name.toLowerCase().replace(" ", "-") + "-fullpath";
 
         let exeButton = document.createElement("button");
         exeButton.type = "button";
         exeButton.classList.add("hyprspace-exe-button");
-        exeButton.id = executable.name + "-button";
+        exeButton.id =
+            executable.name.toLowerCase().replace(" ", "-") + "-button";
         exeButton.addEventListener("click", function () {
             emitExecutionRequestEvent(executable.full_path, "executable");
         });
@@ -294,17 +298,48 @@
 
         console.log(key);
 
-        if (key === "Escape" || code === "Escape") {
-            minimizeWindow();
-        } else if (buttons_array !== undefined && (key === "ArrowDown" || code === "ArrowDown")) {
-            moveSelectionDown();
-        } else if(buttons_array !== undefined && (key === "ArrowUp" || code === "ArrowUp")) {
-            moveSelectionUp();
-        } else if(key === "Backspace" || code === "Backspace") {
-            if(searchInput.length > 0) {
-                searchInput = searchInput.substring(0, searchInput.length - 1);
+        if (key !== "Enter") {
+            if (key === "Escape" || code === "Escape") {
+                minimizeWindow();
+            } else if (
+                buttons_array !== undefined &&
+                (key === "ArrowDown" || code === "ArrowDown")
+            ) {
+                moveSelectionDown();
+            } else if (
+                buttons_array !== undefined &&
+                (key === "ArrowUp" || code === "ArrowUp")
+            ) {
+                moveSelectionUp();
+            } else if (key === "Backspace" || code === "Backspace") {
+                let currentlyFocused = document.activeElement;
+                if (currentlyFocused.id !== "hyprspace-search-bar-input") {
+                    if (searchInput.length > 0) {
+                        searchInput = searchInput.substring(
+                            0,
+                            searchInput.length - 1
+                        );
+                        document
+                            .getElementById("hyprspace-search-bar-input")
+                            .focus();
+                    }
+                }
+            } else {
+                let currentlyFocused = document.activeElement;
+                if (currentlyFocused.id !== "hyprspace-search-bar-input") {
+                    document
+                        .getElementById("hyprspace-search-bar-input")
+                        .focus();
+                }
             }
-        } 
+        } else {
+            if(buttons_array !== undefined) {
+                let currentlyFocused = document.activeElement;
+                if(currentlyFocused.id === "hyprspace-search-bar-input") {
+                    buttons_array[0].focus();
+                }
+            }
+        }
     }
 
     function moveSelectionUp() {
@@ -332,12 +367,22 @@
             document.getElementById("hyprspace-search-bar-input").focus();
         }
     }
+
+    const handleWheel = e => {
+        if((buttons_array !== undefined) && e.deltaY > 0) {
+            moveSelectionDown();
+        } else if ((buttons_array !== undefined) && e.deltaY < 0) {
+            moveSelectionUp();
+        }
+        e.preventDefault();
+    }
+
 </script>
 
 <!-- Configuration of Window -->
-<svelte:window on:keydown={handleKeyDownEvent} />
+<svelte:window on:keydown={handleKeyDownEvent} on:wheel = { handleWheel }/>
 
-<div class="search-container">
+<div class="search-container" >
     <div class="hyprspace-search-bar">
         <input
             type="text"

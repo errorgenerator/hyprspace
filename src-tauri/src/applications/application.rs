@@ -128,14 +128,20 @@ fn parse_desktop_file(path: PathBuf) -> Option<(String, String, String)> {
                     let mut exe_line = ls.clone();
                     exe_line = exe_line.replace("Exec=", "");
                     match exe_line.find(" --") {
-                        None => {
-                            app_exe.push_str(exe_line.clone().as_str());
-                        },
+                        None => {},
                         Some(o) => {
                             exe_line.replace_range(o.., "");
-                            app_exe.push_str(exe_line.clone().as_str());
                         }
                     };
+
+                    match exe_line.find("%") {
+                        None => {},
+                        Some(o) => {
+                            exe_line.replace_range(o.., "");
+                        }
+                    }
+                    exe_line = String::from(exe_line.trim());
+                    app_exe.push_str(exe_line.clone().as_str());
                     got_exec = true;
                 }
 
