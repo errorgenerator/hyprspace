@@ -3,6 +3,9 @@
 **HYPRSPACE IS MAINLY FOR MY PERSONAL USE, SO PLEASE BE PATIENT. IT WAS NEVER INTENDED TO BE MORE THAN JUST A SIDE PROJECT.
 THUS, YOU CAN EXPECT TO FIND A LOT OF BAD CODE HERE AS WELL AS ONLY LACKLUSTER DOCUMENTATION**
 
+*This app has mainly been used by me to get a "feel" for Tauri for an upcoming project called
+shitb0x-radio.*
+
 *i will add more documentation soon, i promise ...*
 
 - [Hyprspace](#hyprspace)
@@ -98,6 +101,14 @@ My Advice: Use something like **[lxappearance](https://github.com/lxde/lxappeara
 
 It is important, that Hyprspace is started **AFTER** any modifications to the `$PATH` variable, otherwise it will
 not be able to find and watch certain directories.
+
+**Keep in mind, that hyprspace will not show ANY UI on startup.
+Instead, it listens on a socket (/tmp/hyprspace.sock by default) for a command
+to show itself. send the string "TOGGLE" over the socket to toggle visibility,
+send the string "SHOW" for the app to show itself. send the string "HIDE" for the app
+to hide again.**
+
+*this is probably important enough to get its own section, but for now, we really don't need to document anything else, since this app is not intended for widespread use.*
 
 ## 📦 Used Crates:
 
